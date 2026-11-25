@@ -14,7 +14,7 @@
 
 This repository is based on the original **Calmira II (Online! Release 3.3)** source code:
 
-- **Original website:** [http://www.calmira.org](http://www.calmira.org)
+- **Original website:** [http://www.calmira.de/](http://www.calmira.de/)
 - **Original authors:**
   - Copyright (C) 1997–1998 Li-Hsin Huang
   - Copyright (C) 1998–2002 Calmira Online!
