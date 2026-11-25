@@ -1,6 +1,6 @@
 [submodule "wuil"]
 	path = wuil
-	url = git@github.com:mztulip/WUIL.git
+	url = git@github.com:mztulip/wuil_fpc.git
 [submodule "fpc-source"]
 	path = fpc-source
 	url = git@github.com:mztulip/FPCSource.git
