@@ -29,17 +29,51 @@ This repository is based on the original **Calmira II (Online! Release 3.3)** so
 
 ## Cloning
 
-Clone with submodules included:
+Clone the repository together with the `wuil` and `fpc-source` submodules:
 
 ```bash
-git clone --recursive git@github.com:mztulip/calmira_fpc.git
+git clone --recursive https://github.com/mztulip/calmira_fpc.git
+cd calmira_fpc
 ```
 
-## Building
+If you already cloned without `--recursive`, initialize the submodules with:
 
-1. Build the `i8086-win16` cross-compiler from `fpc-source/` (see `wuil/fpc_readme.md` for details).
-2. Ensure Open Watcom `wlink` is installed and available in your `PATH`.
-3. Compile Calmira II using the helper script in `wuil/`:
+```bash
+git submodule update --init --recursive
+```
+
+## Building from Source
+
+### Prerequisites
+
+- **Linux x86_64** host with **GNU Make**
+- **Host Free Pascal Compiler (`fpc`)** (e.g. FPC 3.2.2) to bootstrap the `i8086` cross-compiler
+- **Open Watcom** (`wlink`, `wlib`, `wrc`) installed in `/opt/watcom` (or set `WATCOM` accordingly)
+
+### Step 1: Build the `i8086-win16` Cross-Compiler (`ppcross8086`)
+
+From the repository root:
+
+```bash
+make -C fpc-source/compiler i8086
+```
+
+This builds `fpc-source/compiler/ppcross8086`.
+
+### Step 2: Build the Win16 RTL (HUGE Memory Model, i486)
+
+```bash
+make -C fpc-source/rtl/win16 \
+    OS_TARGET=win16 CPU_TARGET=i8086 \
+    PP="$PWD/fpc-source/compiler/ppcross8086" \
+    OPT="-Cp80486 -Op80486 -Wh -WmHUGE -CX -XX"
+```
+
+This builds the Win16 RTL units in `fpc-source/rtl/units/win16` with HUGE memory model (`-WmHUGE`, giving each unit its own FAR data segment to exceed the 64 KB `DGROUP` limit) and per-procedure code sections (`-Wh`).
+
+### Step 3: Compile Calmira II
+
+Run the helper wrapper [`wuil/fpc16`](wuil/fpc16) from the repository root:
 
 ```bash
 ./wuil/fpc16 -Mdelphi -CX -XX \
@@ -47,6 +81,20 @@ git clone --recursive git@github.com:mztulip/calmira_fpc.git
     -FiSRC -FiVCL \
     SRC/CALMIRA.DPR
 ```
+
+This compiles and links all 80+ Calmira units into a 16-bit Windows New Executable (`SRC/CALMIRA.exe`).
+
+### Step 4: Bind Resources and Forms (`.RES` / `.DFM`)
+
+Attach the original Calmira resources and Delphi forms using Open Watcom `wrc`:
+
+```bash
+WATCOM=/opt/watcom ./wuil/bindres SRC/CALMIRA.exe
+```
+
+> **Note:** Without this step, `SRC/CALMIRA.exe` will not contain its embedded `.DFM` forms, icons, or bitmaps.
+
+The resulting `SRC/CALMIRA.exe` can be run on Windows 3.1x or under [`win16Loader`](https://github.com/mztulip/win16Loader).
 
 ## License
 
