@@ -4,3 +4,6 @@
 *.map
 SRC/CALMIRA.exe
 *.o
+*.sl/
+ppas.sh
+
